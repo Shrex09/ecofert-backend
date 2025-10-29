@@ -1,23 +1,34 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import numpy as np
-from fastapi.middleware.cors import CORSMiddleware
+import os
 
-app = FastAPI(title="EcoFert Fertilizer Recommendation API")
+# ----------------------------------------------------
+# 1️⃣ Initialize FastAPI app
+# ----------------------------------------------------
+app = FastAPI(
+    title="EcoFert Fertilizer Recommendation API",
+    description="AI-based API that predicts the best organic fertilizer "
+                "based on soil nutrient data.",
+    version="2.0.0"
+)
 
-# Allow requests from your Flutter app (localhost, web)
+# ----------------------------------------------------
+# 2️⃣ Enable CORS (so Flutter web/mobile can access)
+# ----------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for development; restrict later
+    allow_origins=["*"],       # Allow all for dev; restrict later for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------------------------
-# Data model for incoming JSON
-# ---------------------------
+# ----------------------------------------------------
+# 3️⃣ Define Pydantic data model
+# ----------------------------------------------------
 class SoilData(BaseModel):
     nitrogen: float
     phosphorus: float
@@ -27,30 +38,55 @@ class SoilData(BaseModel):
     temperature: float
 
 
-# ---------------------------
-# Dummy or ML-based prediction
-# ---------------------------
-# If you have a trained model, uncomment:
-# model = joblib.load("model.pkl")
+# ----------------------------------------------------
+# 4️⃣ Load ML Model
+# ----------------------------------------------------
+MODEL_PATH = "model.pkl"
 
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(
+        f"❌ Model file '{MODEL_PATH}' not found! Please upload a trained model first."
+    )
+
+try:
+    model = joblib.load(MODEL_PATH)
+    print("✅ Model loaded successfully.")
+except Exception as e:
+    print(f"⚠️ Error loading model: {e}")
+    model = None
+
+
+# ----------------------------------------------------
+# 5️⃣ Define prediction endpoint
+# ----------------------------------------------------
 @app.post("/predict")
 def predict(data: SoilData):
-    # Convert data to numpy array if needed
-    X = np.array([[data.nitrogen, data.phosphorus, data.potassium, data.ph, data.moisture, data.temperature]])
+    """
+    Predict the best fertilizer based on NPK, pH, moisture, and temperature.
+    Returns a fertilizer name from the trained ML model.
+    """
+    if model is None:
+        raise HTTPException(status_code=500, detail="Model not loaded on server.")
 
-    # ---- Option 1: Use a trained ML model ----
-    # y_pred = model.predict(X)[0]
-    # fertilizer = y_pred
+    # Convert input data to NumPy array
+    X = np.array([[data.nitrogen, data.phosphorus, data.potassium,
+                   data.ph, data.moisture, data.temperature]])
 
-    # ---- Option 2: Simple rules for now ----
-    if data.nitrogen < 50:
-        fertilizer = "Compost"
-    elif data.ph < 6.5:
-        fertilizer = "Neem Cake"
-    elif data.moisture < 40:
-        fertilizer = "Cow Dung"
-    else:
-        fertilizer = "Organic Mix"
+    try:
+        # Run model prediction
+        prediction = model.predict(X)[0]
+        return {"recommended_fertilizer": prediction}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-    # Return as JSON
-    return {"recommended_fertilizer": fertilizer}
+
+# ----------------------------------------------------
+# 6️⃣ Root endpoint for sanity check
+# ----------------------------------------------------
+@app.get("/")
+def root():
+    return {
+        "message": "🌱 EcoFert API is running successfully!",
+        "status": "OK",
+        "endpoints": ["/predict"]
+    }
