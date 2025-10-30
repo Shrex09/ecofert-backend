@@ -1,40 +1,98 @@
-# train_model.py
+# train_models.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score
 import joblib
 
 # ---------------------------
-# 1. Load or create sample soil dataset
+# 1. Load the real dataset
 # ---------------------------
-data = {
-    'nitrogen': [40, 60, 80, 30, 90, 55, 45, 70, 85, 20],
-    'phosphorus': [20, 40, 60, 15, 70, 50, 25, 55, 65, 10],
-    'potassium': [30, 50, 70, 25, 75, 55, 40, 60, 80, 15],
-    'ph': [6.2, 7.0, 6.8, 5.8, 7.5, 6.5, 6.0, 6.9, 7.2, 5.5],
-    'moisture': [45, 60, 70, 35, 80, 50, 40, 65, 75, 30],
-    'temperature': [26, 29, 31, 24, 32, 28, 27, 30, 33, 23],
-    'fertilizer': ['Compost', 'Neem Cake', 'Organic Mix', 'Cow Dung',
-                   'Organic Mix', 'Neem Cake', 'Compost', 'Neem Cake', 'Organic Mix', 'Cow Dung']
-}
+df = pd.read_csv("Fertilizer_Prediction.csv")
 
-df = pd.DataFrame(data)
+# Clean column names (some may have spaces or capitalization differences)
+df.columns = df.columns.str.strip().str.replace(" ", "_")
+
+# Show available columns (optional debug)
+print("📊 Columns:", df.columns.tolist())
 
 # ---------------------------
-# 2. Split features and target
+# 2. Keep only relevant columns
 # ---------------------------
-X = df[['nitrogen', 'phosphorus', 'potassium', 'ph', 'moisture', 'temperature']]
-y = df['fertilizer']
+selected_cols = ["Nitrogen", "Phosphorous", "Potassium", "Moisture", "Temparature", "Crop_Type", "Fertilizer_Name"]
+df = df[selected_cols].dropna()
+
+# Rename for consistency with the app
+df.rename(columns={
+    "Phosphorous": "phosphorus",
+    "Potassium": "potassium",
+    "Nitrogen": "nitrogen",
+    "Moisture": "moisture",
+    "Temparature": "temperature",
+    "Crop_Type": "crop",
+    "Fertilizer_Name": "fertilizer"
+}, inplace=True)
+
+print(f"✅ Using {len(df)} rows with features: nitrogen, phosphorus, potassium, moisture, temperature")
 
 # ---------------------------
-# 3. Train Random Forest model
+# 3. Encode categorical targets
 # ---------------------------
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X, y)
+fertilizer_encoder = LabelEncoder()
+crop_encoder = LabelEncoder()
+
+df["fertilizer_label"] = fertilizer_encoder.fit_transform(df["fertilizer"])
+df["crop_label"] = crop_encoder.fit_transform(df["crop"])
 
 # ---------------------------
-# 4. Save trained model
+# 4. Split features and targets
 # ---------------------------
-joblib.dump(model, 'model.pkl')
+X = df[["nitrogen", "phosphorus", "potassium", "moisture", "temperature"]]
 
-print("✅ Model trained and saved as model.pkl")
+y_fertilizer = df["fertilizer_label"]
+y_crop = df["crop_label"]
+
+X_train_f, X_test_f, y_train_f, y_test_f = train_test_split(X, y_fertilizer, test_size=0.2, random_state=42)
+X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(X, y_crop, test_size=0.2, random_state=42)
+
+# ---------------------------
+# 5. Train Random Forest models
+# ---------------------------
+fertilizer_model = RandomForestClassifier(n_estimators=200, random_state=42)
+fertilizer_model.fit(X_train_f, y_train_f)
+
+crop_model = RandomForestClassifier(n_estimators=200, random_state=42)
+crop_model.fit(X_train_c, y_train_c)
+
+# ---------------------------
+# 6. Evaluate accuracy
+# ---------------------------
+fertilizer_acc = accuracy_score(y_test_f, fertilizer_model.predict(X_test_f))
+crop_acc = accuracy_score(y_test_c, crop_model.predict(X_test_c))
+
+print(f"🌿 Fertilizer model accuracy: {fertilizer_acc:.2%}")
+print(f"🌾 Crop model accuracy: {crop_acc:.2%}")
+
+# ---------------------------
+# 7. Save both models and encoders
+# ---------------------------
+joblib.dump(fertilizer_model, "fertilizer_model.pkl")
+joblib.dump(crop_model, "crop_model.pkl")
+joblib.dump(fertilizer_encoder, "fertilizer_encoder.pkl")
+joblib.dump(crop_encoder, "crop_encoder.pkl")
+
+print("✅ Models saved successfully:")
+print(" - fertilizer_model.pkl")
+print(" - crop_model.pkl")
+print(" - fertilizer_encoder.pkl")
+print(" - crop_encoder.pkl")
+
+# ---------------------------
+# 8. Example test prediction
+# ---------------------------
+sample = [[60, 40, 55, 65, 28]]
+fert_pred = fertilizer_encoder.inverse_transform(fertilizer_model.predict(sample))[0]
+crop_pred = crop_encoder.inverse_transform(crop_model.predict(sample))[0]
+
+print(f"🌱 Example Prediction:\n  Crop: {crop_pred}\n  Fertilizer: {fert_pred}")
