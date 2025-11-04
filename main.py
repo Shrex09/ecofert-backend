@@ -1,26 +1,26 @@
 # main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 import joblib
 import numpy as np
 
 # ---------------------------
-# 🌱 App Initialization
+# 🌾 App Initialization
 # ---------------------------
-app = FastAPI(title="EcoFert Crop & Fertilizer Recommendation API")
+app = FastAPI(title="EcoFert Crop & Fertilizer Prediction API")
 
-# Allow requests from Flutter & Web
+# Allow cross-origin requests (for Flutter frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to your domain later for security
+    allow_origins=["*"],  # Allow all origins during dev
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ---------------------------
-# 📦 Load Trained Models
+# 📦 Load Trained ML Models
 # ---------------------------
 try:
     fertilizer_model = joblib.load("fertilizer_model.pkl")
@@ -30,55 +30,38 @@ try:
     print("✅ Models loaded successfully.")
 except Exception as e:
     print(f"⚠️ Error loading models: {e}")
-    fertilizer_model = None
-    crop_model = None
-    fertilizer_encoder = None
-    crop_encoder = None
+    fertilizer_model = crop_model = None
 
 
 # ---------------------------
-# 🌾 Define Input Schema with Validations
+# 🌱 Define Input Schema
 # ---------------------------
 class SoilData(BaseModel):
-    nitrogen: float = Field(..., ge=0, le=150, description="Nitrogen content (0–150)")
-    phosphorus: float = Field(..., ge=0, le=150, description="Phosphorus content (0–150)")
-    potassium: float = Field(..., ge=0, le=200, description="Potassium content (0–200)")
-    ph: float = Field(..., ge=3.5, le=9.0, description="Soil pH value (3.5–9.0)")
-    moisture: float = Field(..., ge=0, le=100, description="Moisture percentage (0–100)")
-    temperature: float = Field(..., ge=5, le=50, description="Temperature °C (5–50)")
+    nitrogen: float
+    phosphorus: float
+    potassium: float
+    ph: float
+    moisture: float
+    temperature: float
 
 
 # ---------------------------
-# 🌿 Root Route
-# ---------------------------
-@app.get("/")
-def root():
-    return {"status": "OK", "message": "EcoFert API running 🌿"}
-
-
-# ---------------------------
-# 🔮 Prediction Route
+# 🔮 Predict Endpoint
 # ---------------------------
 @app.post("/predict")
 def predict(data: SoilData):
-    # Check models
-    if None in [fertilizer_model, crop_model, fertilizer_encoder, crop_encoder]:
+    if fertilizer_model is None or crop_model is None:
         raise HTTPException(status_code=500, detail="Models not loaded properly")
 
     try:
-        # Convert input data to numpy
+        # Match model training feature order (6 features)
         X = np.array([[data.nitrogen, data.phosphorus, data.potassium,
-                       data.moisture, data.temperature]])
+                       data.ph, data.moisture, data.temperature]])
 
-        # Run predictions
-        fert_pred = fertilizer_encoder.inverse_transform(
-            fertilizer_model.predict(X)
-        )[0]
-        crop_pred = crop_encoder.inverse_transform(
-            crop_model.predict(X)
-        )[0]
+        fert_pred = fertilizer_encoder.inverse_transform(fertilizer_model.predict(X))[0]
+        crop_pred = crop_encoder.inverse_transform(crop_model.predict(X))[0]
 
-        print(f"🌾 Predicted → Crop: {crop_pred}, Fertilizer: {fert_pred}")
+        print(f"🌾 Prediction Successful → Crop: {crop_pred}, Fertilizer: {fert_pred}")
 
         return {
             "recommended_crop": crop_pred,
@@ -90,9 +73,16 @@ def predict(data: SoilData):
 
 
 # ---------------------------
-# 🚦 Health Check
+# 🌍 Health + Root Routes
 # ---------------------------
+@app.get("/")
+def root():
+    return {"status": "OK", "message": "EcoFert API running using Kaggle dataset 🌿"}
+
+
 @app.get("/health")
 def health():
-    return {"status": "healthy", "models_loaded": fertilizer_model is not None}
-
+    return {
+        "status": "healthy",
+        "models_loaded": fertilizer_model is not None and crop_model is not None
+    }
