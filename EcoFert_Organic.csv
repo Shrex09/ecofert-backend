@@ -1,0 +1,101 @@
+nitrogen,phosphorus,potassium,ph,moisture,temperature,recommended_fertilizer,recommended_crop
+93,72,68,8.4,41,36,Vermicompost,Tomato
+87,85,20,7.1,31,30,Cow Dung,Groundnut
+79,62,108,8.4,43,21,Bone Meal,Sugarcane
+83,90,83,5.0,87,33,Vermicompost,Tomato
+20,14,90,6.9,72,26,Compost,Wheat
+41,31,98,6.9,44,34,Organic Mix,Maize
+111,97,19,6.6,59,37,Vermicompost,Tomato
+78,47,49,5.7,20,32,Cow Dung,Groundnut
+37,69,34,4.7,39,36,Cow Dung,Groundnut
+21,12,24,8.3,30,18,Cow Dung,Groundnut
+105,84,142,6.8,35,33,Cow Dung,Groundnut
+21,92,164,7.7,20,32,Cow Dung,Groundnut
+59,62,70,6.3,68,36,Organic Mix,Maize
+27,80,73,4.6,67,21,Neem Cake,Paddy
+86,44,127,7.5,73,30,Bone Meal,Sugarcane
+22,20,108,4.6,62,27,Neem Cake,Paddy
+65,47,45,5.2,65,32,Organic Mix,Maize
+118,65,54,4.5,42,23,Vermicompost,Tomato
+115,64,129,5.1,83,28,Vermicompost,Tomato
+95,96,170,5.7,70,29,Vermicompost,Tomato
+93,70,75,5.8,73,35,Vermicompost,Tomato
+104,44,24,7.8,75,20,Vermicompost,Tomato
+27,99,164,5.2,28,32,Neem Cake,Paddy
+11,30,94,5.1,58,30,Neem Cake,Paddy
+35,52,130,7.0,29,25,Cow Dung,Groundnut
+114,68,22,7.0,45,23,Vermicompost,Tomato
+19,39,102,6.7,22,20,Cow Dung,Groundnut
+80,41,68,5.7,66,35,Organic Mix,Maize
+108,77,89,4.9,23,27,Cow Dung,Groundnut
+16,33,109,5.1,32,31,Neem Cake,Paddy
+101,19,144,7.9,55,21,Bone Meal,Sugarcane
+65,86,152,6.7,69,20,Organic Mix,Maize
+109,45,156,7.2,78,23,Bone Meal,Sugarcane
+28,94,28,7.9,85,28,Organic Mix,Maize
+109,91,142,5.3,29,30,Cow Dung,Groundnut
+24,39,132,6.9,35,34,Cow Dung,Groundnut
+10,13,84,5.8,33,19,Neem Cake,Paddy
+56,49,104,7.0,47,23,Organic Mix,Maize
+100,13,116,6.7,87,36,Vermicompost,Tomato
+89,36,118,6.3,47,21,Vermicompost,Tomato
+43,43,124,7.2,45,28,Bone Meal,Sugarcane
+98,19,36,6.5,51,38,Vermicompost,Tomato
+30,24,104,7.2,55,22,Bone Meal,Sugarcane
+101,15,63,5.3,28,34,Cow Dung,Groundnut
+70,27,33,6.2,65,36,Organic Mix,Maize
+104,53,13,7.0,40,24,Vermicompost,Tomato
+63,89,122,8.5,69,34,Bone Meal,Sugarcane
+39,49,90,8.0,57,33,Organic Mix,Maize
+62,83,160,5.3,41,31,Organic Mix,Maize
+54,81,84,5.0,43,26,Organic Mix,Maize
+102,62,112,7.7,74,27,Bone Meal,Sugarcane
+19,96,144,6.3,67,32,Organic Mix,Maize
+101,74,29,7.5,65,33,Vermicompost,Tomato
+98,20,99,5.3,41,18,Vermicompost,Tomato
+35,46,58,5.5,21,20,Cow Dung,Groundnut
+14,43,42,5.9,64,29,Neem Cake,Paddy
+13,54,27,7.0,81,22,Organic Mix,Maize
+77,60,11,7.3,68,23,Organic Mix,Maize
+120,96,78,6.3,78,23,Vermicompost,Tomato
+35,45,31,5.5,35,27,Cow Dung,Groundnut
+38,54,73,7.8,55,18,Organic Mix,Maize
+60,60,34,7.7,66,21,Organic Mix,Maize
+32,25,112,7.3,34,31,Cow Dung,Groundnut
+117,67,78,6.1,34,38,Cow Dung,Groundnut
+40,37,114,5.8,88,24,Organic Mix,Maize
+45,57,148,5.3,24,22,Cow Dung,Groundnut
+108,78,112,6.7,23,25,Cow Dung,Groundnut
+105,99,139,5.5,37,31,Cow Dung,Groundnut
+89,32,17,6.9,87,37,Vermicompost,Tomato
+101,36,22,5.4,48,27,Vermicompost,Tomato
+19,25,146,5.4,52,31,Neem Cake,Paddy
+111,71,94,7.0,88,19,Vermicompost,Tomato
+120,41,116,8.0,59,24,Bone Meal,Sugarcane
+34,38,40,5.4,86,34,Organic Mix,Maize
+74,30,44,6.0,77,30,Organic Mix,Maize
+96,81,155,7.0,89,26,Vermicompost,Tomato
+84,20,14,7.9,20,20,Cow Dung,Groundnut
+90,93,70,6.3,84,30,Vermicompost,Tomato
+39,93,126,5.5,76,25,Organic Mix,Maize
+37,22,142,7.6,48,36,Bone Meal,Sugarcane
+66,82,169,6.3,89,35,Organic Mix,Maize
+79,83,41,5.5,85,23,Organic Mix,Maize
+89,63,99,4.6,42,23,Vermicompost,Tomato
+82,91,58,7.1,72,36,Vermicompost,Tomato
+37,35,145,7.3,50,33,Bone Meal,Sugarcane
+26,67,99,5.2,56,18,Neem Cake,Paddy
+25,87,150,8.4,60,27,Bone Meal,Sugarcane
+109,88,86,7.2,70,37,Vermicompost,Tomato
+48,56,36,6.2,48,32,Organic Mix,Maize
+82,45,177,7.2,76,35,Bone Meal,Sugarcane
+108,67,42,7.3,58,29,Vermicompost,Tomato
+30,24,23,7.7,29,31,Cow Dung,Groundnut
+60,86,118,5.4,47,29,Organic Mix,Maize
+25,72,65,8.2,47,26,Organic Mix,Maize
+97,95,46,4.8,59,21,Vermicompost,Tomato
+113,20,14,6.2,25,21,Cow Dung,Groundnut
+25,22,71,7.2,70,26,Organic Mix,Maize
+74,75,15,7.3,81,31,Organic Mix,Maize
+56,82,131,7.4,58,22,Bone Meal,Sugarcane
+69,46,162,6.1,55,29,Organic Mix,Maize
