@@ -1,54 +1,43 @@
-# train_model.py — EcoFert Kaggle ML Trainer 🌾
+# train_models.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 import joblib
 
-print("🌱 Starting EcoFert (Kaggle) Model Training...")
-
 # ---------------------------
-# 1️⃣ Load Kaggle Dataset
+# 1. Load the real dataset
 # ---------------------------
-try:
-    df = pd.read_csv("Fertilizer_Prediction.csv")
-    print("✅ Dataset loaded successfully.")
-except FileNotFoundError:
-    raise Exception("❌ Dataset file 'Fertilizer Prediction.csv' not found. Please place it in this folder.")
+df = pd.read_csv("Fertilizer_Prediction.csv")
 
-# Clean column names
+# Clean column names (some may have spaces or capitalization differences)
 df.columns = df.columns.str.strip().str.replace(" ", "_")
-print("📊 Columns found:", df.columns.tolist())
+
+# Show available columns (optional debug)
+print("📊 Columns:", df.columns.tolist())
 
 # ---------------------------
-# 2️⃣ Select Relevant Columns
+# 2. Keep only relevant columns
 # ---------------------------
-required_cols = [
-    "Nitrogen", "Phosphorous", "Potassium",
-    "Moisture", "Temparature", "Crop_Type", "Fertilizer_Name"
-]
+selected_cols = ["Nitrogen", "Phosphorous", "Potassium", "Moisture", "Temparature", "Crop_Type", "Fertilizer_Name"]
+df = df[selected_cols].dropna()
 
-missing = [col for col in required_cols if col not in df.columns]
-if missing:
-    raise Exception(f"❌ Missing required columns in dataset: {missing}")
-
-df = df[required_cols].dropna()
-print(f"✅ Using {len(df)} valid rows.")
-
-# Rename for consistency
+# Rename for consistency with the app
 df.rename(columns={
-    "Nitrogen": "nitrogen",
     "Phosphorous": "phosphorus",
     "Potassium": "potassium",
+    "Nitrogen": "nitrogen",
     "Moisture": "moisture",
     "Temparature": "temperature",
     "Crop_Type": "crop",
     "Fertilizer_Name": "fertilizer"
 }, inplace=True)
 
+print(f"✅ Using {len(df)} rows with features: nitrogen, phosphorus, potassium, moisture, temperature")
+
 # ---------------------------
-# 3️⃣ Encode Target Labels
+# 3. Encode categorical targets
 # ---------------------------
 fertilizer_encoder = LabelEncoder()
 crop_encoder = LabelEncoder()
@@ -57,9 +46,10 @@ df["fertilizer_label"] = fertilizer_encoder.fit_transform(df["fertilizer"])
 df["crop_label"] = crop_encoder.fit_transform(df["crop"])
 
 # ---------------------------
-# 4️⃣ Split Features and Targets
+# 4. Split features and targets
 # ---------------------------
 X = df[["nitrogen", "phosphorus", "potassium", "moisture", "temperature"]]
+
 y_fertilizer = df["fertilizer_label"]
 y_crop = df["crop_label"]
 
@@ -67,62 +57,42 @@ X_train_f, X_test_f, y_train_f, y_test_f = train_test_split(X, y_fertilizer, tes
 X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(X, y_crop, test_size=0.2, random_state=42)
 
 # ---------------------------
-# 5️⃣ Train Random Forest Models
+# 5. Train Random Forest models
 # ---------------------------
-print("🚜 Training Random Forest models...")
-
-fertilizer_model = RandomForestClassifier(
-    n_estimators=300,
-    max_depth=12,
-    random_state=42
-)
+fertilizer_model = RandomForestClassifier(n_estimators=200, random_state=42)
 fertilizer_model.fit(X_train_f, y_train_f)
 
-crop_model = RandomForestClassifier(
-    n_estimators=300,
-    max_depth=12,
-    random_state=42
-)
+crop_model = RandomForestClassifier(n_estimators=200, random_state=42)
 crop_model.fit(X_train_c, y_train_c)
 
 # ---------------------------
-# 6️⃣ Evaluate Performance
+# 6. Evaluate accuracy
 # ---------------------------
-fert_acc = accuracy_score(y_test_f, fertilizer_model.predict(X_test_f))
+fertilizer_acc = accuracy_score(y_test_f, fertilizer_model.predict(X_test_f))
 crop_acc = accuracy_score(y_test_c, crop_model.predict(X_test_c))
 
-print(f"🌿 Fertilizer Model Accuracy: {fert_acc:.2%}")
-print(f"🌾 Crop Model Accuracy: {crop_acc:.2%}")
-
-print("\n📈 Fertilizer Classification Report:")
-print(classification_report(y_test_f, fertilizer_model.predict(X_test_f), zero_division=0))
-
-print("\n📈 Crop Classification Report:")
-print(classification_report(y_test_c, crop_model.predict(X_test_c), zero_division=0))
+print(f"🌿 Fertilizer model accuracy: {fertilizer_acc:.2%}")
+print(f"🌾 Crop model accuracy: {crop_acc:.2%}")
 
 # ---------------------------
-# 7️⃣ Save Models and Encoders
+# 7. Save both models and encoders
 # ---------------------------
 joblib.dump(fertilizer_model, "fertilizer_model.pkl")
 joblib.dump(crop_model, "crop_model.pkl")
 joblib.dump(fertilizer_encoder, "fertilizer_encoder.pkl")
 joblib.dump(crop_encoder, "crop_encoder.pkl")
 
-print("\n✅ Model and encoder files saved successfully:")
+print("✅ Models saved successfully:")
 print(" - fertilizer_model.pkl")
 print(" - crop_model.pkl")
 print(" - fertilizer_encoder.pkl")
 print(" - crop_encoder.pkl")
 
 # ---------------------------
-# 8️⃣ Example Test Prediction
+# 8. Example test prediction
 # ---------------------------
-sample = [[50, 40, 45, 55, 26]]  # N, P, K, Moisture, Temperature
+sample = [[60, 40, 55, 65, 28]]
 fert_pred = fertilizer_encoder.inverse_transform(fertilizer_model.predict(sample))[0]
 crop_pred = crop_encoder.inverse_transform(crop_model.predict(sample))[0]
 
-print("\n🌱 Example Prediction:")
-print(f"   Fertilizer → {fert_pred}")
-print(f"   Crop       → {crop_pred}")
-
-print("\n✅ EcoFert Kaggle ML training completed successfully.")
+print(f"🌱 Example Prediction:\n  Crop: {crop_pred}\n  Fertilizer: {fert_pred}")
